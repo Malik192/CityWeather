@@ -1,11 +1,12 @@
 package com.example.weatherapp.city
-
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.constraintlayout.widget.Constraints.TAG
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.weatherapp.App
 import com.example.weatherapp.Database
 import com.example.weatherapp.R
@@ -13,6 +14,18 @@ import com.example.weatherapp.R
 class CityFragment : Fragment() {
     private lateinit var cities: MutableList<City>
     private lateinit var database: Database
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var adapter: CityAdapter
+
+    interface CityFragmentListener {
+        fun onCitySelected(city: City)
+        fun onSelectionCleared()
+        fun onEmptyCities()
+    }
+
+    var listener: CityFragmentListener? = null
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         //recuperer une instance de bdd
@@ -26,7 +39,19 @@ class CityFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view =inflater.inflate(R.layout.fragment_city, container, false)
+        recyclerView = view.findViewById(R.id.cities_recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(context)
+
         return view
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        cities = database.getAllCities()
+        Log.i(TAG, "cities $cities")
+
+        adapter = CityAdapter(cities, this)
+        recyclerView.adapter = adapter
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -42,17 +67,16 @@ class CityFragment : Fragment() {
         }
         return super.onOptionsItemSelected(item)
     }
-
+    fun onCitySelected(city: City) {
+        listener?.onCitySelected(city)
+    }
     private fun showCreateCityDialog() {
          val createCityFragment = CreateCityDialogFragment()
 
         createCityFragment.listener = object: CreateCityDialogFragment.CreateCityDialogListener
         {
-            fun onDialogPosClick(cityName: String) {
-               saveCity(City(cityName))
-            }
 
-            fun onDialogNegClick(){}
+
             override fun onDialogPositiveClick(cityName: String) {
                 saveCity(City(cityName))
             }
@@ -68,8 +92,9 @@ class CityFragment : Fragment() {
 
 
     private fun saveCity(city: City) {
-        if (database.create_city(city)){
+        if (database.createCity(city)){
             cities.add(city)
+            adapter.notifyDataSetChanged()
 
         }
         else{

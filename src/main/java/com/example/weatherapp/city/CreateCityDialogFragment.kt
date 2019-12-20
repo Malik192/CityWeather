@@ -29,11 +29,13 @@ class CreateCityDialogFragment : DialogFragment() {
         builder.setTitle(R.string.createcity_title)
             .setView(input)
             .setPositiveButton(R.string.createcity_positive,
-                DialogInterface.OnClickListener { _, _ ->
+                { _, _ ->
                     listener?.onDialogPositiveClick(input.text.toString())
                 })
             .setNegativeButton(R.string.createcity_negative,
-                DialogInterface.OnClickListener { dialog, _ -> dialog.cancel() })
+                { dialog, _ -> dialog.cancel()
+                  listener?.onDialogNegativeClick()
+                })
 
         return builder.create()
     }

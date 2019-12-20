@@ -5,4 +5,7 @@
     <string name="createcity_negative">Cancel</string>
     <string name="createcity_hint">Paris London ...</string>
     <string name="menu_create_city">create city</string>
+    <string name="SuppVille">voulez vous supprimer cette ville</string>
+    <string name="failtoloadtemp">impossible de charger les données de la temperature</string>
+    <string name="degrecelsius">°C</string>
 </resources>
